@@ -1,6 +1,8 @@
 const BASE_PATH = "http://localhost:3000"
 const USER_PATH = `${BASE_PATH}/users`
 const LOGIN_PATH = `${BASE_PATH}/login`
+const PUZZLE_PATH = `${BASE_PATH}/puzzles`
+//const CHALLENGE_PATH = `${BASE_PATH}/challenges`
 const BEARER = 'Bearer '
 
 const dynamicStyles = document.getElementById('dynamic-styles')
@@ -13,6 +15,7 @@ const footerHeight = 75
 const signup = document.getElementById('signup-select')
 const login = document.getElementById('login-select')
 const logout = document.getElementById('logout-select')
+const puzzler = document.getElementById('puzzler')
 signup.addEventListener('click',loginActionSelect)
 login.addEventListener('click',loginActionSelect)
 logout.addEventListener('click',loginActionSelect)
@@ -23,7 +26,7 @@ signupForm.addEventListener('submit', signupSubmit)
 const signupFormUserName = document.getElementById('signup-username')
 const signupFormPassword = document.getElementById('signup-password')
 const signupFormUserNameConfirm = document.getElementById('signup-username-confirm')
-const signupFormPasswordConfrim = document.getElementById('signup-password-confrim')
+const signupFormPasswordConfirm = document.getElementById('signup-password-confirm')
 const signupMessages = document.getElementById('signup-messages')
 
 // Login Form
@@ -56,7 +59,152 @@ const game = document.getElementById('game')
 const referenceImage = document.getElementById('reference-image')
 const completedImage = document.getElementById('completed-image')
 const gameBoard = document.getElementById('game-board')
-const newPuzzleSelect = document.getElementById('new-puzzle') 
+const newPuzzleSelect = document.getElementById('new-puzzle-select')
+newPuzzleSelect.addEventListener('click', changePuzzle)
+const savePuzzleSelect = document.getElementById('save-puzzle-select')
+savePuzzleSelect.addEventListener('click', savePuzzle)
+const deletePuzzleSaveSelect = document.getElementById('delete-puzzle-save-select')
+deletePuzzleSaveSelect.addEventListener('click', deletePuzzleSave)
+
+function deleteAllChildren(element) {
+    for(let i=element.childElementCount-1; i>=0; i--) {
+        element.removeChild(element.childNodes[i])
+    }
+}
+
+function changePuzzle() {
+    location.reload()
+    setState()
+}
+
+function gatherState() {
+    const imagePath = localStorage.getItem('image_master_url')
+    const id = localStorage.getItem('puzzle_id')
+    const cardStyles = dynamicStyles.innerText
+    let cardMap = {}
+    let correct = 0
+
+    for (let i = 1; i<=cardCount; i++) {
+        const card = document.getElementById(`card-${i}`)
+        const location = card.parentElement
+        cardMap[location.dataset.id] = card.dataset.id
+        if(location.dataset.id == card.dataset.id) {
+            correct = correct + 1
+        }
+    }
+    const percentCorrect = Math.floor((correct/cardCount)*100)
+    const elapsedTime = Number(Date.now())-startTime
+    let completionStatus = false
+    if (checkForCompleteness()) {
+        completionStatus = true
+    }
+
+    const state = {
+        id:id,
+        image_path: imagePath,
+        rows: rows,
+        columns: columns,
+        card_map: '',
+        card_styles: cardStyles,
+        elapsed_time: elapsedTime,
+        percent_correct: percentCorrect,
+        completion_status: completionStatus}
+
+    return state
+}
+
+function savePuzzle() {
+    const token = localStorage.getItem('token')
+    const puzzle = gatherState()
+    const id = puzzle.id
+
+    if (id == '' || id == null) {
+        console.log("Save Data")
+    
+        fetch(PUZZLE_PATH, {method: "POST",
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': `${token}`
+        },
+        body: JSON.stringify({puzzle})
+        })
+        .then(response => {
+            const responseOK =  response.ok
+            response.json().then(responseBody=>{
+                if (responseOK) {
+                    puzzle_id = responseBody.puzzle.id
+                    localStorage.setItem('puzzle_id', puzzle_id)
+                    deletePuzzleSaveSelect.classList.remove('item-inactive')
+                    console.log(`Save Successful ${puzzle_id}`)
+
+                }
+            })
+        })
+    }
+    else {
+        console.log("Update Saved Data")
+        fetch(`${PUZZLE_PATH}/${id}`, {method: "PUT",
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': `${token}`
+        },
+        body: JSON.stringify({puzzle})
+        })
+        .then(response => {
+            const responseOK =  response.ok
+            response.json().then(responseBody=>{
+                if (responseOK) {
+                    console.log(`${id} Update Successful`)
+                }
+            })
+        })
+    } 
+}
+
+function deletePuzzleSave() {
+    const puzzle_id = localStorage.getItem('puzzle_id')
+    const token = localStorage.getItem('token')
+
+    if (puzzle_id == '' || puzzle_id == null) {
+        alert('Puzzle save cannot be deleted, because no save can be found')
+    }
+    else {
+        console.log('Delete Saved Data')
+        fetch(`${PUZZLE_PATH}/${puzzle_id}`, {method: 'DELETE',
+        headers: {
+            'Authorization': `${token}`
+          }        
+        })
+        .then(response => {
+            const responseOK =  response.ok
+            response.json().then(responseBody=>{
+                if (responseOK) {
+                    localStorage.setItem('puzzle_id', '')
+                    deletePuzzleSaveSelect.classList.add('item-inactive')
+                    console.log(`${puzzle_id} Delete Successful`)
+                }
+            })
+        })
+    }
+}
+
+// function saveChallenge() {
+//     let state = gatherState()
+
+//     fetch(CHALLENGE_PATH, {
+//         method: 'POST',
+
+//         body: JSON.stringify({state.imagePath, state.rows, state.columns, state.elapsedTime})
+//     })
+//     .then()
+// }
+
+// function deleteChallenge(id) {
+//     fetch(`${CHALLENGE_PATH}/${id}`, { method: 'DELETE' })
+//         .then()
+// }
 
 function initializeLocalStorage() {
     const token = localStorage.getItem('token')
@@ -65,9 +213,12 @@ function initializeLocalStorage() {
 }
 
 function setState() {
+    initializeLocalStorage()
     const token = localStorage.getItem('token')
 
     if (token == '' || token == null) {
+        puzzler.classList.add('puzzler-logged-out')
+        puzzler.classList.remove('puzzler-logged-in')
         signup.style.display = 'inline-block'
         signup.classList.remove('item-selected')
         login.style.display = 'inline-block'
@@ -79,6 +230,8 @@ function setState() {
         game.style.display = 'none'
     }
     else {
+        puzzler.classList.add('puzzler-logged-in')
+        puzzler.classList.remove('puzzler-logged-out')
         generateRandomSelect.style.display = 'inline-block'
         generateRandomSelect.classList.add('item-selected')
         generateForm.dataset.mode = 'random'
@@ -182,6 +335,7 @@ function signupSubmit (event) {
                         if (loginResponseStatus == 200) {
                             token = loginResponseBody.token
                             localStorage.setItem('token', BEARER.concat(token))
+                            location.reload()
                             setState()
                         }
                         else {
@@ -261,6 +415,7 @@ function loginSubmit (event) {
             if (loginResponseStatus == 200) {
                 token = loginResponseBody.token
                 localStorage.setItem('token', BEARER.concat(token))
+                location.reload()
                 setState()
             }
             else {
@@ -296,6 +451,7 @@ function loginActionSelect (event) {
     }
     else if (targetElement == logout) {
         localStorage.setItem('token', '')
+        location.reload()
         setState()
     }
     else {}
@@ -332,40 +488,25 @@ function drag(event) {
     event.dataTransfer.setData("text", `${event.target.id}`)
 }
 
-function gatherState() {
-    const imagePath = localStorage.getItem('image_master_url')
-    // get board dimensions
-    const cardStyles = dynamicStyles.innerText
-    // get get board state
-    for (let i = 1; i<=cardCount; i++) {
-        const card = document.getElementsByClassName(`card-${i}`)
-    }
-    const elapsedTime = Number(Date.now())-startTime
-    const completionStatus = true
+// function quickPrettyTime(milisecondDuration) {
+//     let seconds = milisecondDuration/1000
+//     let minutes = Math.floor(seconds/60)
+//     let newSeconds = seconds%60
 
-    const state = {
-            imagePath: imagePath,
-            cardStyles: cardStyles,
-            elapsedTime: elapsedTime,
-            completionStatus: completionStatus
-        }
-
-    console.log(state)
-    return state
-}
+//     let time = ""
+//     if (minutes > 0) {
+//         time = 
+//     }
+// }
 
 function gameOver() {
     gameBoard.style.display = 'none'
     completedImage.style.display = 'block'
     
     const state = gatherState()
-
-    console.log('State Object', state)
-    console.log('Image Path', state.imagePath)
-    console.log('Elapsed Time',state.elapsedTime)
-    console.log('Completed', state.completionStatus)
-
-    const message = `You completed the puzzle in ${state.elapsedTime} milliseconds! (I know that isn't really helpful.)`
+    const message = `You completed the puzzle in ${state.elapsed_time} milliseconds! (I know that isn't really helpful.)`
+    // update selections to post challenge from save options
+    alert(message)
 }
 
 function checkForCompleteness() {
@@ -438,7 +579,7 @@ function randomizeCards(cardCount) {
     while (i <= cardCount){
         const randomIndex = Math.floor(Math.random()*initialCards.length)
 
-        if(randomIndex != i) {
+        if(initialCards[randomIndex] != i) {
             randomMap[i] = initialCards[randomIndex]
             initialCards = [...initialCards.slice(0, randomIndex), ...initialCards.slice(randomIndex+1)]
             i = i+1
@@ -446,35 +587,25 @@ function randomizeCards(cardCount) {
     }
 
     return randomMap
-
-    // for (let i = 1; i <= cardCount; i++) {
-    //     randomIndex = Math.floor(Math.random()*initialCards.length)
-    //     randomMap[i] = initialCards[randomIndex]
-    //     initialCards = [...initialCards.slice(0, randomIndex), ...initialCards.slice(randomIndex+1)]
-    // }
-
-    // let alreadySolved = true
-
-    // for (let i = 1; i <= cardCount; i++) {
-    //     if (randomMap[i] != i) {
-    //         alreadySolved = false
-    //         break
-    //     }
-    // }
-
-    // if(alreadySolved) {
-    //     return randomizeCards(cardCount)
-    // } else {
-    //     return randomMap
-    // }
 }
 
 let cardCount = 0
+let rows = 0
+let columns = 0
 
 function generateBoard() {
     event.preventDefault()
-    const rows = generateRows.value
-    const columns = generateColumns.value
+
+    const puzzle_id = localStorage.getItem('puzzle_id')
+    if(puzzle_id == '' || puzzle_id == null) {
+        deletePuzzleSaveSelect.classList.add('item-inactive')
+    }
+    else {
+        deletePuzzleSaveSelect.classList.remove('item-inactive')
+    }
+
+    rows = generateRows.value
+    columns = generateColumns.value
     cardCount = rows*columns
     const cardWidth = Math.floor((window.innerWidth-(2*boardBorder))/columns)
     const cardHeight = Math.floor(Math.floor((window.innerHeight-(2*boardBorder)-headerHeight-footerHeight)/2)/rows)
@@ -566,18 +697,4 @@ function generateBoard() {
     generateForm.style.display = 'none'
 }
 
-initializeLocalStorage()
 setState()
-
-// if (window.File && window.FileReader && window.FileList && window.Blob) {
-//     alert('Yay')
-//   } else {
-//     alert('The File APIs are not fully supported in this browser.');
-//   }
-
-//   window.alert = function(title, message){
-//     var myElementToShow = document.getElementById("someElementId");
-//     myElementToShow.innerHTML = title + "</br>" + message; 
-// }
-
-// alert('Howdy', 'Doody')

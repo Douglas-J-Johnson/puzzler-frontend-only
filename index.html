@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Puzzled</title>
+    <title>Puzzler</title>
     <link rel="stylesheet" href="reset.css"/>
     <link rel="stylesheet" href="style.css"/> 
     <style id='dynamic-styles'></style>
@@ -15,7 +15,7 @@
         <div id="signup-select" class="state-selector">SIGN UP</div>
         <div id="login-select" class="state-selector">LOG IN</div>
         <div id="logout-select" class="state-selector">LOG OUT</div>
-        <img src="puzzler.png" class="puzzler">
+        <img id="puzzler" src="puzzler.png" class="puzzler-logged-out">
     </header>
     <main>
         <div id="forms">
@@ -48,7 +48,6 @@
                             <div id="generate-specify-select" class="state-selector">USER IMAGE</div>
                         </td>
                     </tr>
-                    <tr></tr>
                 </table>
                 <label id="generate-columns-label" for="generate-columns"></label>
                 <input id="generate-columns" name="generate-columns" type="range" min="3" max="8" value="4"/>
@@ -64,7 +63,19 @@
             </form>
         </div>
         <div id="game">
-            <div id="new-puzzle-select" class="state-selector">GET NEW PUZZLE</div>
+            <table>
+                <tr>
+                    <td align="center">
+                        <div id="new-puzzle-select" class="state-selector">CHANGE PUZZLE</div>
+                    </td>
+                    <td align="center">
+                        <div id="save-puzzle-select" class="state-selector">SAVE PUZZLE</div>
+                    </td>
+                    <td align="center">
+                        <div id="delete-puzzle-save-select" class="state-selector">DELETE SAVE</div>
+                    </td>
+                </tr>
+            </table>
             <hr>
             <div id="reference-image"></div>
             <hr>

@@ -65,6 +65,10 @@ label {
     text-decoration: underline;
 }
 
+.item-inactive {
+    color: darkgrey;
+}
+
 #forms {
     display: flex;
     flex-direction: column;
@@ -107,12 +111,16 @@ label {
     color: darkred;
 }
 
-.puzzler {
+.puzzler-logged-in {
     height: 40px;
     width: 40px;
+    transform: rotate(-90deg);
     transition: all 0.5s ease-in-out;
 }
 
-.puzzler:hover {
+.puzzler-logged-out {
+    height: 40px;
+    width: 40px;
     transform: rotate(90deg);
+    transition: all 0.5s ease-in-out;
 }
