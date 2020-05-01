@@ -1,0 +1,23 @@
+{
+  "name": "module3-frontend",
+  "version": "1.0.0",
+  "description": "Puzzler is a game that generates a block puzzle form an image.  The currently implemented mode allows the user to generate an puzzle from a random image using the Unsplash random image interface (https://source.unsplash.com/).  The user can optionally specify a subject matter for the image and specifies the number of rows and columns to \"puzzlify\" the image.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Douglas-J-Johnson/module3-frontend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Douglas-J-Johnson/module3-frontend/issues"
+  },
+  "homepage": "https://github.com/Douglas-J-Johnson/module3-frontend#readme",
+  "dependencies": {
+    "cypress": "^4.1.0"
+  }
+}

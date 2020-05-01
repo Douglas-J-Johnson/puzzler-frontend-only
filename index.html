@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puzzler</title>
+    <link rel="stylesheet" href="reset.css"/>
+    <link rel="stylesheet" href="style.css"/> 
+    <style id='dynamic-styles'></style>
+    <link rel="shortcut icon" href="favicon.png" type="image/png" />
+    <link rel="icon" href="favicon.png" type="image/png" />
+</head>
+<body>
+    <header>
+        <div id="signup-select" class="state-selector">SIGN UP</div>
+        <div id="login-select" class="state-selector">LOG IN</div>
+        <div id="logout-select" class="state-selector">LOG OUT</div>
+        <img id="puzzler" src="puzzler.png" class="puzzler-logged-out">
+    </header>
+    <main>
+        <div id="forms">
+            <form id="signup-form" class="signup-form">
+                <hr>
+                <input id="signup-username" type="text" name="username" placeholder = "User Name"/>
+                <input id="signup-password" type="password" name="password" placeholder = "Password"/><br>
+                <input id="signup-username-confirm" type="text" name="username" placeholder = "Confirm User Name"/>
+                <input id="signup-password-confirm" type="password" name="password" placeholder = "Confirm Password"/>
+                <input type="submit" class="form-submit" value="Sign Up">
+                <ul id="signup-messages"></ul>
+                <hr>
+            </form>
+            <form id="login-form" class="login-form">
+                <hr>
+                <input id="login-username" type="text" name="username" placeholder = "User Name"/>
+                <input id="login-password" type="password" name="password" placeholder = "Password"/>
+                <input type="submit" class="form-submit" value="Log In">
+                <ul id="login-messages"></ul>
+                <hr>
+            </form>
+            <form id="generate-form" class="generate-form">
+                <hr>
+                <table>
+                    <tr>
+                        <td align="right">
+                            <div id="generate-random-select" class="state-selector">RANDOM IMAGE</div>
+                        </td>
+                        <td align="left">
+                            <div id="generate-specify-select" class="state-selector">USER IMAGE</div>
+                        </td>
+                    </tr>
+                </table>
+                <label id="generate-columns-label" for="generate-columns"></label>
+                <input id="generate-columns" name="generate-columns" type="range" min="3" max="8" value="4"/>
+                <label id="generate-rows-label" for="generate-rows"></label>
+                <input id="generate-rows" name="generate-rows" type="range" min="3" max="8" value="4"/>
+                <!-- form content for random image --> 
+                <input id="generate-themes" name="generate-themes" type="text" placeholder="Card Themes (comma separated - e.g., 'dogs, cats')"/>
+                <!-- form content for user selected image --> 
+                <input id="generate-file-path" name="generate-file-path" type="text" placeholder="Specify URL..."/>
+                <input type="submit" class="form-submit" value="Create Board">
+                <ul id="login-messages"></ul>
+                <hr>
+            </form>
+        </div>
+        <div id="game">
+            <table>
+                <tr>
+                    <td align="center">
+                        <div id="new-puzzle-select" class="state-selector">CHANGE PUZZLE</div>
+                    </td>
+                    <td align="center">
+                        <div id="save-puzzle-select" class="state-selector">SAVE PUZZLE</div>
+                    </td>
+                    <td align="center">
+                        <div id="delete-puzzle-save-select" class="state-selector">DELETE SAVE</div>
+                    </td>
+                </tr>
+            </table>
+            <hr>
+            <div id="reference-image"></div>
+            <hr>
+            <div id="completed-image"></div>
+            <table id="game-board" name="game-board"></table>
+            <hr>
+        </div>
+    </main>
+    <footer></footer>
+    <script src="index.js" defer></script>
+</body>
+</html>
